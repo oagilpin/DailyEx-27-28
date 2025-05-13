@@ -1,0 +1,93 @@
+[
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "CSU ESS330 Daily Exercises 27 & 28",
+    "section": "",
+    "text": "library(osmdata)\n\nData (c) OpenStreetMap contributors, ODbL 1.0. https://www.openstreetmap.org/copyright\n\nlibrary(sf)\n\nLinking to GEOS 3.13.0, GDAL 3.8.5, PROJ 9.5.1; sf_use_s2() is TRUE\n\nlibrary(terra)\n\nterra 1.8.42\n\nlibrary(dplyr)\n\n\nAttaching package: 'dplyr'\n\n\nThe following objects are masked from 'package:terra':\n\n    intersect, union\n\n\nThe following objects are masked from 'package:stats':\n\n    filter, lag\n\n\nThe following objects are masked from 'package:base':\n\n    intersect, setdiff, setequal, union\n\nlibrary(ggplot2)\nlibrary(tidyverse)\n\n── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──\n✔ forcats   1.0.0     ✔ stringr   1.5.1\n✔ lubridate 1.9.4     ✔ tibble    3.2.1\n✔ purrr     1.0.4     ✔ tidyr     1.3.1\n✔ readr     2.1.5     \n\n\n── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──\n✖ tidyr::extract() masks terra::extract()\n✖ dplyr::filter()  masks stats::filter()\n✖ dplyr::lag()     masks stats::lag()\nℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors"
+  },
+  {
+    "objectID": "index.html#to-do-use-the-code-from-lecture-to-extract-all-waterways-from-openstreetmap-for-the-bounding-box-of-fort-collins-co.",
+    "href": "index.html#to-do-use-the-code-from-lecture-to-extract-all-waterways-from-openstreetmap-for-the-bounding-box-of-fort-collins-co.",
+    "title": "CSU ESS330 Daily Exercises 27 & 28",
+    "section": "1. To do use the code from lecture to extract all waterways from OpenStreetMap for the Bounding Box of Fort Collins, CO.",
+    "text": "1. To do use the code from lecture to extract all waterways from OpenStreetMap for the Bounding Box of Fort Collins, CO.\n\nfc_bbox &lt;- c(-105.15, 40.5, -104.95, 40.65)\nnames(fc_bbox) &lt;- c(\"xmin\", \"ymin\", \"xmax\", \"ymax\")\n\nfc &lt;- st_bbox(fc_bbox, crs = 4326)\n\nfoco_rivers &lt;- osmdata::opq(fc) |&gt; \n  add_osm_feature(\"waterway\") |&gt; \n  osmdata_sf()"
+  },
+  {
+    "objectID": "index.html#filter-the-osm_lines-object-to-only-include-the-cache-la-poudre-river-and-merge-the-lines-into-a-single-line-object-with-st_union.-be-sure-to-convert-the-object-to-a-sf-object-with-st_as_sf-when-done.",
+    "href": "index.html#filter-the-osm_lines-object-to-only-include-the-cache-la-poudre-river-and-merge-the-lines-into-a-single-line-object-with-st_union.-be-sure-to-convert-the-object-to-a-sf-object-with-st_as_sf-when-done.",
+    "title": "CSU ESS330 Daily Exercises 27 & 28",
+    "section": "2. Filter the osm_lines object to only include the Cache la Poudre River and merge the lines into a single line object with st_union(). Be sure to convert the object to a sf object with st_as_sf() when done.",
+    "text": "2. Filter the osm_lines object to only include the Cache la Poudre River and merge the lines into a single line object with st_union(). Be sure to convert the object to a sf object with st_as_sf() when done.\n\npoudre &lt;- foco_rivers$osm_lines %&gt;%\n  filter(str_detect(name, \"Cache la Poudre\"))\npoudre_river &lt;- st_union(poudre) |&gt; \n  st_as_sf()"
+  },
+  {
+    "objectID": "index.html#use-st_length-to-compute-the-length-of-the-river-for-future-calculations.",
+    "href": "index.html#use-st_length-to-compute-the-length-of-the-river-for-future-calculations.",
+    "title": "CSU ESS330 Daily Exercises 27 & 28",
+    "section": "3. Use st_length() to compute the length of the river for future calculations.",
+    "text": "3. Use st_length() to compute the length of the river for future calculations.\n\nriver_length &lt;- st_length(poudre_river)\nprint(river_length)\n\n175361.9 [m]"
+  },
+  {
+    "objectID": "index.html#use-st_cast-to-convert-the-river-object-to-a-point-object-and-save-it-as-poudre_pts-for-latter-extraction-tasks",
+    "href": "index.html#use-st_cast-to-convert-the-river-object-to-a-point-object-and-save-it-as-poudre_pts-for-latter-extraction-tasks",
+    "title": "CSU ESS330 Daily Exercises 27 & 28",
+    "section": "4. Use st_cast() to convert the river object to a POINT object and save it as poudre_pts for latter extraction tasks",
+    "text": "4. Use st_cast() to convert the river object to a POINT object and save it as poudre_pts for latter extraction tasks\n\npoudre_pts &lt;- st_cast(poudre_river, \"POINT\")"
+  },
+  {
+    "objectID": "index.html#use-the-rast-function-to-read-in-the-dem-file-from-the-lynker-spatial-s3-bucket-shared-in-last-assignment.-be-sure-to-use-the-vsis3-prefix",
+    "href": "index.html#use-the-rast-function-to-read-in-the-dem-file-from-the-lynker-spatial-s3-bucket-shared-in-last-assignment.-be-sure-to-use-the-vsis3-prefix",
+    "title": "CSU ESS330 Daily Exercises 27 & 28",
+    "section": "5. Use the rast() function to read in the DEM file from the lynker-spatial S3 bucket shared in last assignment. Be sure to use the vsis3 prefix!",
+    "text": "5. Use the rast() function to read in the DEM file from the lynker-spatial S3 bucket shared in last assignment. Be sure to use the vsis3 prefix!\n\nurl &lt;- 'https://raw.githubusercontent.com/mikejohnson51/csu-ess-330/a993e03df117a76c609ff4c018055f8c821a6de9/resources/foco-elev.tif'\nrast(glue::glue(\"/vsicurl/{url}\"))\n\nclass       : SpatRaster \ndimensions  : 750, 591, 1  (nrow, ncol, nlyr)\nresolution  : 29.01279, 29.01279  (x, y)\nextent      : -769693.5, -752546.9, 1978477, 2000236  (xmin, xmax, ymin, ymax)\ncoord. ref. : +proj=aea +lat_0=23 +lon_0=-96 +lat_1=29.5 +lat_2=45.5 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs \nsource      : foco-elev.tif \nname        : foco-elev \nmin value   :      1466 \nmax value   :      1975 \n\nSys.setenv(\"AWS_NO_SIGN_REQUEST\" = \"YES\")\nrast(\"/vsis3/lynker-spatial/gridded-resources/dem.vrt\")\n\nclass       : SpatRaster \ndimensions  : 114503, 163008, 1  (nrow, ncol, nlyr)\nresolution  : 30, 30  (x, y)\nextent      : -2470965, 2419275, 186285, 3621375  (xmin, xmax, ymin, ymax)\ncoord. ref. : +proj=aea +lat_0=23 +lon_0=-96 +lat_1=29.5 +lat_2=45.5 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs \nsource      : dem.vrt \nname        : dem \n\ndem &lt;- rast('/vsis3/lynker-spatial/gridded-resources/dem.vrt')"
+  },
+  {
+    "objectID": "index.html#use-the-extract-function-to-extract-the-elevation-values-from-the-dem-at-the-points-along-the-river.",
+    "href": "index.html#use-the-extract-function-to-extract-the-elevation-values-from-the-dem-at-the-points-along-the-river.",
+    "title": "CSU ESS330 Daily Exercises 27 & 28",
+    "section": "6. Use the extract() function to extract the elevation values from the DEM at the points along the river.",
+    "text": "6. Use the extract() function to extract the elevation values from the DEM at the points along the river.\n\nelevations &lt;- terra::extract(dem, vect(poudre_pts))\n\nWarning: [extract] transforming vector data to the CRS of the raster"
+  },
+  {
+    "objectID": "index.html#use-bind_cols-to-combine-the-spatial-river-points-with-the-extracted-elevation-values.-8.-use-mutate-to-add-a-new-column-called-id-that-is-a-sequence-from-1-to-the-number-of-points-in-the-river-n.",
+    "href": "index.html#use-bind_cols-to-combine-the-spatial-river-points-with-the-extracted-elevation-values.-8.-use-mutate-to-add-a-new-column-called-id-that-is-a-sequence-from-1-to-the-number-of-points-in-the-river-n.",
+    "title": "CSU ESS330 Daily Exercises 27 & 28",
+    "section": "7. Use bind_cols() to combine the spatial river points with the extracted elevation values. & 8. Use mutate() to add a new column called ID that is a sequence from 1 to the number of points in the river (n()).",
+    "text": "7. Use bind_cols() to combine the spatial river points with the extracted elevation values. & 8. Use mutate() to add a new column called ID that is a sequence from 1 to the number of points in the river (n()).\n\nriver_profile &lt;- bind_cols(poudre_pts, elevations) |&gt;\n  mutate(ID = row_number())"
+  },
+  {
+    "objectID": "index.html#use-the-st_distance-function-to-compute-the-straight-line-distance-between-the-first-and-last-points-in-the-river.",
+    "href": "index.html#use-the-st_distance-function-to-compute-the-straight-line-distance-between-the-first-and-last-points-in-the-river.",
+    "title": "CSU ESS330 Daily Exercises 27 & 28",
+    "section": "9. Use the st_distance() function to compute the straight line distance between the first and last points in the river.",
+    "text": "9. Use the st_distance() function to compute the straight line distance between the first and last points in the river.\n\nstart_end_dist &lt;- st_distance(poudre_pts[1,], poudre_pts[nrow(poudre_pts),])"
+  },
+  {
+    "objectID": "index.html#divide-the-length-of-the-full-river-step-3-by-this-straight-line-distance-to-get-the-sinuosity.-report-the-value-and-what-it-means.",
+    "href": "index.html#divide-the-length-of-the-full-river-step-3-by-this-straight-line-distance-to-get-the-sinuosity.-report-the-value-and-what-it-means.",
+    "title": "CSU ESS330 Daily Exercises 27 & 28",
+    "section": "10. Divide the length of the full river (step 3) by this straight line distance to get the sinuosity. Report the value and what it means.",
+    "text": "10. Divide the length of the full river (step 3) by this straight line distance to get the sinuosity. Report the value and what it means.\n\nDoes this value make sense with respect to the complete Poudre River?\n\nsinuosity &lt;- as.numeric(river_length) / as.numeric(start_end_dist)\nprint(sinuosity)\n\n[1] 2.721159"
+  },
+  {
+    "objectID": "index.html#the-slope-of-a-river-is-the-change-in-elevation-between-the-inlet-and-outlet-divided-by-the-length-of-the-river.-compute-this-value-and-report-it.-remember-the-units-of-the-elevation-cm-and-of-your-length",
+    "href": "index.html#the-slope-of-a-river-is-the-change-in-elevation-between-the-inlet-and-outlet-divided-by-the-length-of-the-river.-compute-this-value-and-report-it.-remember-the-units-of-the-elevation-cm-and-of-your-length",
+    "title": "CSU ESS330 Daily Exercises 27 & 28",
+    "section": "11. The slope of a river is the change in elevation between the inlet and outlet divided by the length of the river. Compute this value and report it. Remember the units of the elevation (cm) and of your length!",
+    "text": "11. The slope of a river is the change in elevation between the inlet and outlet divided by the length of the river. Compute this value and report it. Remember the units of the elevation (cm) and of your length!\n\nelev_change &lt;- river_profile$dem[1] - river_profile$dem[nrow(river_profile)]\nslope &lt;- as.numeric(elev_change) / as.numeric(river_length)\nprint(slope)\n\n[1] 0.9964763"
+  },
+  {
+    "objectID": "index.html#use-ggplot-to-create-a-line-plot-of-the-elevation-values-along-the-river.-be-sure-to-use-the-id-column-as-the-x-axis-and-the-dem-column-as-the-y-axis.-add-nice-lables-and-themese-to-your-chart.",
+    "href": "index.html#use-ggplot-to-create-a-line-plot-of-the-elevation-values-along-the-river.-be-sure-to-use-the-id-column-as-the-x-axis-and-the-dem-column-as-the-y-axis.-add-nice-lables-and-themese-to-your-chart.",
+    "title": "CSU ESS330 Daily Exercises 27 & 28",
+    "section": "12. Use ggplot() to create a line plot of the elevation values along the river. Be sure to use the ID column as the x-axis and the dem column as the y-axis. Add nice lables and themese to your chart.",
+    "text": "12. Use ggplot() to create a line plot of the elevation values along the river. Be sure to use the ID column as the x-axis and the dem column as the y-axis. Add nice lables and themese to your chart.\n\nggplot(river_profile, aes(x = ID, y = dem)) +\n  geom_line(color = \"purple\") +\n  labs(x = \"River Point ID\", y = \"Elevation (cm)\", title = \"Elevation Gradient of the Cache la Poudre River\") +\n  theme_minimal()"
+  },
+  {
+    "objectID": "index.html#use-ggplot-to-plot-the-spatial-mpa-of-the-river-profile.-use-the-geom_sf-function-to-plot-the-river-and-color-it-by-elevation.-be-sure-to-use-a-nice-color-scale-and-theme.",
+    "href": "index.html#use-ggplot-to-plot-the-spatial-mpa-of-the-river-profile.-use-the-geom_sf-function-to-plot-the-river-and-color-it-by-elevation.-be-sure-to-use-a-nice-color-scale-and-theme.",
+    "title": "CSU ESS330 Daily Exercises 27 & 28",
+    "section": "13. Use ggplot() to plot the spatial mpa of the river profile. Use the geom_sf() function to plot the river and color it by elevation. Be sure to use a nice color scale and theme.",
+    "text": "13. Use ggplot() to plot the spatial mpa of the river profile. Use the geom_sf() function to plot the river and color it by elevation. Be sure to use a nice color scale and theme.\n\nggplot(river_profile) +\n  geom_sf(aes(color = dem)) +\n  scale_color_viridis_c() +\n  labs(title = \"Cache la Poudre River: Elevation Gradient Map\", color = \"Elevation (cm)\") +\n  theme_minimal()\n\n\n\n\n\n\n\n\n\nSave plots in img folder\n\nggsave(\"img/elevation_gradient_plot.png\", width = 10, height = 6, dpi = 300)\nggsave(\"img/river_elevation_map.png\", width = 10, height = 6, dpi = 300)"
+  }
+]

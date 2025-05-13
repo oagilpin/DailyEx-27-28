@@ -1,0 +1,127 @@
+---
+project:
+  output-dir: docs
+  type: website
+title: "CSU ESS330 Daily Exercises 27 & 28"
+author: "Olivia Gilpin"
+date: "05-12-2025"
+format:
+  html:
+    output-file: index.html
+    self-contained: true
+    toc: true
+    toc-depth: 4
+    toc-location: left 
+---
+
+# Load Libraries
+```{r}
+library(osmdata)
+library(sf)
+library(terra)
+library(dplyr)
+library(ggplot2)
+library(tidyverse)
+```
+
+# Define River Object
+
+## 1. To do use the code from lecture to extract all waterways from OpenStreetMap for the Bounding Box of Fort Collins, CO.
+```{r}
+fc_bbox <- c(-105.15, 40.5, -104.95, 40.65)
+names(fc_bbox) <- c("xmin", "ymin", "xmax", "ymax")
+
+fc <- st_bbox(fc_bbox, crs = 4326)
+
+foco_rivers <- osmdata::opq(fc) |> 
+  add_osm_feature("waterway") |> 
+  osmdata_sf()
+```
+
+## 2. Filter the osm_lines object to only include the Cache la Poudre River and merge the lines into a single line object with st_union(). Be sure to convert the object to a sf object with st_as_sf() when done.
+```{r}
+poudre <- foco_rivers$osm_lines %>%
+  filter(str_detect(name, "Cache la Poudre"))
+poudre_river <- st_union(poudre) |> 
+  st_as_sf()
+```
+
+## 3. Use st_length() to compute the length of the river for future calculations.
+```{r}
+river_length <- st_length(poudre_river)
+print(river_length)
+```
+
+## 4. Use st_cast() to convert the river object to a POINT object and save it as poudre_pts for latter extraction tasks
+```{r}
+poudre_pts <- st_cast(poudre_river, "POINT")
+```
+
+# Define DEM Object
+## 5. Use the rast() function to read in the DEM file from the lynker-spatial S3 bucket shared in last assignment. Be sure to use the vsis3 prefix!
+```{r}
+url <- 'https://raw.githubusercontent.com/mikejohnson51/csu-ess-330/a993e03df117a76c609ff4c018055f8c821a6de9/resources/foco-elev.tif'
+rast(glue::glue("/vsicurl/{url}"))
+Sys.setenv("AWS_NO_SIGN_REQUEST" = "YES")
+rast("/vsis3/lynker-spatial/gridded-resources/dem.vrt")
+dem <- rast('/vsis3/lynker-spatial/gridded-resources/dem.vrt')
+```
+
+# Extract River Profile
+## 6. Use the extract() function to extract the elevation values from the DEM at the points along the river.
+```{r}
+elevations <- terra::extract(dem, vect(poudre_pts))
+```
+
+## 7. Use bind_cols() to combine the spatial river points with the extracted elevation values. & 8. Use mutate() to add a new column called ID that is a sequence from 1 to the number of points in the river (n()).
+```{r}
+river_profile <- bind_cols(poudre_pts, elevations) |>
+  mutate(ID = row_number())
+```
+
+# Compute Sinuosity
+## 9. Use the st_distance() function to compute the straight line distance between the first and last points in the river.
+```{r}
+start_end_dist <- st_distance(poudre_pts[1,], poudre_pts[nrow(poudre_pts),])
+```
+
+## 10. Divide the length of the full river (step 3) by this straight line distance to get the sinuosity. Report the value and what it means. 
+### Does this value make sense with respect to the complete Poudre River?
+```{r}
+sinuosity <- as.numeric(river_length) / as.numeric(start_end_dist)
+print(sinuosity)
+```
+
+# Compute Slope
+## 11. The slope of a river is the change in elevation between the inlet and outlet divided by the length of the river. Compute this value and report it. Remember the units of the elevation (cm) and of your length!
+```{r}
+elev_change <- river_profile$dem[1] - river_profile$dem[nrow(river_profile)]
+slope <- as.numeric(elev_change) / as.numeric(river_length)
+print(slope)
+```
+
+# Map Profile: 2 ways
+## 12. Use ggplot() to create a line plot of the elevation values along the river. Be sure to use the ID column as the x-axis and the dem column as the y-axis. Add nice lables and themese to your chart.
+```{r}
+ggplot(river_profile, aes(x = ID, y = dem)) +
+  geom_line(color = "purple") +
+  labs(x = "River Point ID", y = "Elevation (cm)", title = "Elevation Gradient of the Cache la Poudre River") +
+  theme_minimal()
+```
+
+## 13. Use ggplot() to plot the spatial mpa of the river profile. Use the geom_sf() function to plot the river and color it by elevation. Be sure to use a nice color scale and theme.
+```{r}
+ggplot(river_profile) +
+  geom_sf(aes(color = dem)) +
+  scale_color_viridis_c() +
+  labs(title = "Cache la Poudre River: Elevation Gradient Map", color = "Elevation (cm)") +
+  theme_minimal()
+```
+
+#### Save plots in img folder 
+```{r}
+ggsave("img/elevation_gradient_plot.png", width = 10, height = 6, dpi = 300)
+ggsave("img/river_elevation_map.png", width = 10, height = 6, dpi = 300)
+```
+
+
