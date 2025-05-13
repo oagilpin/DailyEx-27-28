@@ -10,7 +10,7 @@ format:
     output-file: index.html
     self-contained: true
     toc: true
-    toc-depth: 4
+    toc-depth: 3
     toc-location: left 
 ---
 
@@ -86,7 +86,7 @@ start_end_dist <- st_distance(poudre_pts[1,], poudre_pts[nrow(poudre_pts),])
 ```
 
 ## 10. Divide the length of the full river (step 3) by this straight line distance to get the sinuosity. Report the value and what it means. 
-### Does this value make sense with respect to the complete Poudre River?
+### Does this value make sense with respect to the complete Poudre River? I think a sinuosity value of 2.72 for the Cache la Poudre River makes sense because it indicates a highly sinuous river, which is typical for the plains section where Fort Collins is located.This high degree of sinuosity is typical of other Front Range rivers that flow across the plains after emerging from mountain canyons and displaying comparable sinuous patterns.
 ```{r}
 sinuosity <- as.numeric(river_length) / as.numeric(start_end_dist)
 print(sinuosity)

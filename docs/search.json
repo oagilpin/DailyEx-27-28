@@ -67,7 +67,7 @@
     "href": "index.html#divide-the-length-of-the-full-river-step-3-by-this-straight-line-distance-to-get-the-sinuosity.-report-the-value-and-what-it-means.",
     "title": "CSU ESS330 Daily Exercises 27 & 28",
     "section": "10. Divide the length of the full river (step 3) by this straight line distance to get the sinuosity. Report the value and what it means.",
-    "text": "10. Divide the length of the full river (step 3) by this straight line distance to get the sinuosity. Report the value and what it means.\n\nDoes this value make sense with respect to the complete Poudre River?\n\nsinuosity &lt;- as.numeric(river_length) / as.numeric(start_end_dist)\nprint(sinuosity)\n\n[1] 2.721159"
+    "text": "10. Divide the length of the full river (step 3) by this straight line distance to get the sinuosity. Report the value and what it means.\n\nDoes this value make sense with respect to the complete Poudre River? I think a sinuosity value of 2.72 for the Cache la Poudre River makes sense because it indicates a highly sinuous river, which is typical for the plains section where Fort Collins is located.This high degree of sinuosity is typical of other Front Range rivers that flow across the plains after emerging from mountain canyons and displaying comparable sinuous patterns.\n\nsinuosity &lt;- as.numeric(river_length) / as.numeric(start_end_dist)\nprint(sinuosity)\n\n[1] 2.721159"
   },
   {
     "objectID": "index.html#the-slope-of-a-river-is-the-change-in-elevation-between-the-inlet-and-outlet-divided-by-the-length-of-the-river.-compute-this-value-and-report-it.-remember-the-units-of-the-elevation-cm-and-of-your-length",
